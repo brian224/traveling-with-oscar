@@ -7,6 +7,9 @@
   #map{ float: left; display: block; width: 500px; height: 600px; margin-right: 1em; background-color: #eee; }
   #myCanvas { display: block; width: 600px; height: 600px; border: 1px solid #9C9898; }
   #divContext { float: left; display: block; position: relative; padding: 0 0 30px 0;}
+  .turn {position: absolute; top: 50%; left: 0; z-index: 2; margin-top: -15px; width: 100%;}
+  .turn button {min-width: 50px; height: 50px; background: rgba(0, 0, 0, 0.5); border: 0; color: #fff;}
+  .btn-right { left: auto; right: 0; float: right;}
   .switch-photo {position: absolute; text-align: right; padding: 10px 0 0 0; bottom: 0;}
   .btn-switch { font-size: 15px;}
   .form-group{ margin: 5px; margin-bottom: 1em; }
@@ -22,6 +25,10 @@
 <div id="map"></div>
 <div id="divContext">
   <canvas id="myCanvas" width="500" height="500"></canvas>
+  <div class="turn">
+    <button class="btn-left">&lt; left</button>
+    <button class="btn-right">right &gt;</button>
+  </div>
   <div class="switch-photo">
     <button class="btn-switch" data-index="01">oscar 基本款</button>
     <button class="btn-switch" data-index="02">oscar 喝飲料</button>
@@ -34,7 +41,8 @@
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="http://maps.googleapis.com/maps/api/js?libraries=drawing,places&sensor=false"></script>
 <script>
-var photo = 'image/os01.png';
+var photo = 'image/os01.png',
+    _head = 0;
 var map, marker;
 var loadImages = function (sources, callback) {
   var images = {};
@@ -65,14 +73,14 @@ function geocodeAddress(geocoder, resultsMap) {
 }
 
 var imageReload = function(lat, lng){
-  lat = lat || 25.03000033976827;
-  lng = lng || 121.54913582462314;
+  lat = lat || 35.7040744;
+  lng = lng || 139.5577317;
 
   var canvas = document.getElementById("myCanvas");
   var context = canvas.getContext("2d");
   var sources = {
     oscar: photo,
-    stview: "https://maps.googleapis.com/maps/api/streetview?size=500x500&location="+ lat +","+ lng +"&heading=0&pitch=1"
+    stview: "https://maps.googleapis.com/maps/api/streetview?size=500x500&location="+ lat +","+ lng +"&heading=" + _head + "&pitch=1"
   };
 
   loadImages(sources, function(images) {
@@ -88,13 +96,13 @@ function initMap() {
   var geocoder = new google.maps.Geocoder();
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 15,
-    center: {lat: 25.03000033976827, lng: 121.54913582462314}
+    center: {lat: 35.7040744, lng: 139.5577317}
   });
 
   marker = new google.maps.Marker({
     map: map,
     draggable: true,
-    position: {lat: 25.03000033976827, lng: 121.54913582462314}
+    position: {lat: 35.7040744, lng: 139.5577317}
   });
 
   google.maps.event.addListener(marker, 'dragend', function(){
@@ -108,6 +116,15 @@ function initMap() {
 
   $('.btn-switch').on('click', function(){
     photo = 'image/os' + $(this).data('index') + '.png';
+    imageReload($('.lat').val(), $('.lng').val());
+  });
+
+  $('.turn button').on('click', function(){
+    if ($(this).hasClass('btn-left')) {
+      _head += -10;
+    } else {
+      _head += 10;
+    }
     imageReload($('.lat').val(), $('.lng').val());
   });
 }
